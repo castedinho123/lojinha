@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Wendizx Elite Store - Checkout VIP</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+/* ESTILOS BASE */
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI', sans-serif}
+body{height:100vh;overflow:hidden;display:flex;justify-content:center;align-items:center;background:#030005;color:white;}
+#p{position:fixed;inset:0;z-index:0;opacity:0.4}
+
+.box{position:relative;z-index:10;width:92%;max-width:385px;padding:22px;border-radius:30px;background:rgba(255,255,255,.05);backdrop-filter:blur(25px);border:1px solid rgba(0,255,255,0.2);box-shadow:0 0 50px rgba(0,0,0,0.8);text-align:center;}
+.hidden{display:none}
+
+/* CARRINHO FLUTUANTE */
+#cartBtn{position:fixed;top:20px;right:20px;z-index:100;background:cyan;color:#000;padding:12px;border-radius:50%;cursor:pointer;box-shadow:0 0 15px cyan;display:flex;align-items:center;justify-content:center;font-weight:bold;}
+#cartCount{position:absolute;top:-5px;right:-5px;background:red;color:white;font-size:10px;padding:2px 6px;border-radius:50%;}
+
+/* NOTIFICAÇÃO FAKE */
+#fakeNotify{position:fixed;top:-100px;left:50%;transform:translateX(-50%);width:90%;max-width:350px;background:rgba(255,255,255,0.95);color:#000;padding:12px;border-radius:15px;display:flex;align-items:center;gap:10px;z-index:5000;transition:0.5s;box-shadow:0 10px 30px rgba(0,0,0,0.5)}
+
+/* CARDS E BOTÕES */
+.card-btn{background:rgba(255,255,255,0.05);padding:15px;border-radius:20px;margin-bottom:10px;cursor:pointer;border:1px solid rgba(255,255,255,0.1);display:flex;justify-content:space-between;align-items:center;}
+input, select{width:100%;padding:13px;margin:6px 0;border-radius:14px;border:1px solid rgba(0,255,255,0.2);background:rgba(0,0,0,0.6);color:white;outline:none;font-size:14px}
+.main-btn{width:100%;padding:15px;border-radius:16px;border:none;background:linear-gradient(90deg, #00f2fe, #4facfe);color:white;font-weight:bold;cursor:pointer;margin-top:10px;text-decoration:none;display:block;}
+
+.valor-box {background:rgba(0,0,0,0.5); padding:12px; border-radius:18px; margin:10px 0; border:1px solid rgba(15,255,0,0.3);}
+#totalText {color:#0f0; font-size:26px; text-shadow: 0 0 10px rgba(0,255,0,0.4);}
+
+/* BOTÕES DE CONTATO */
+.btn-contato {margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 14px; border-radius: 12px; font-weight: bold; text-decoration: none; color: white; transition: 0.3s;}
+.btn-wpp {background:#25d366;}
+.btn-insta {background:linear-gradient(45deg, #f09433, #bc1888);}
+.icon-svg {width: 20px; height: 20px; filter: brightness(0) invert(1);}
+
+/* MODAL / CHECKOUT */
+#modal{position:fixed;inset:0;background:rgba(0,0,0,0.95);display:none;justify-content:center;align-items:center;z-index:4000;backdrop-filter:blur(15px);}
+.modal-content{background:#0a0a0a;padding:25px;border-radius:25px;border:1px solid rgba(0,255,255,0.3);width:92%;max-width:350px;text-align:center;box-shadow: 0 0 30px rgba(0,255,255,0.15);}
+
+/* ITENS NO CARRINHO / CHECKOUT */
+.checkout-list {text-align: left; margin: 15px 0; max-height: 200px; overflow-y: auto; padding-right: 5px;}
+.cart-item {background:rgba(255,255,255,0.03); padding:12px; border-radius:15px; margin-bottom:10px; text-align:left; font-size:12px; position:relative; border: 1px solid rgba(255,255,255,0.05);}
+.cart-remove {position:absolute; right:10px; top:10px; color:#ff3e3e; cursor:pointer;}
+
+.pix-badge {background:rgba(0,255,255,0.1); color:cyan; padding:5px 10px; border-radius:8px; font-size:11px; display:inline-block; margin-bottom:10px;}
+</style>
+</head>
+<body>
+
+<canvas id="p"></canvas>
+
+<div id="cartBtn" onclick="abrirCarrinho()">
+    🛒 <span id="cartCount">0</span>
+</div>
+
+<div id="fakeNotify">
+    <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" width="25">
+    <div style="font-size:11px"><b>Instagram</b><br>@vitor_oficial e outros 42 começaram a seguir você.</div>
+</div>
+
+<div class="box" id="menu">
+    <div style="display:flex;justify-content:space-between;font-size:10px;color:cyan;margin-bottom:15px">
+        <span>SISTEMA ATIVO</span>
+        <span style="color:#ff3e3e">EXPIRA EM: <b id="clock">14:59</b></span>
+    </div>
+    <h2 style="letter-spacing:1px;margin-bottom:20px">WENDIZX <span style="color:cyan">STORE</span></h2>
+
+    <div class="card-btn" onclick="abrir('Seguidores', 8.99, 500)">
+        <div style="text-align:left">👤 <b>Seguidores</b><br><small style="color:#0f0">BR | MUNDIAL | mínimo 500</small></div>
+        <b>Acessar</b>
+    </div>
+
+    <div class="card-btn" onclick="abrir('Curtidas', 4.99, 500)">
+        <div style="text-align:left">❤️ <b>Curtidas</b><br><small style="color:#0f0">Mínimo 500 curtidas</small></div>
+        <b>Acessar</b>
+    </div>
+
+    <div class="card-btn" onclick="abrir('Visualizações', 5.99, 1200)">
+        <div style="text-align:left">👁 <b>Visualizações</b><br><small style="color:#0f0">Preço Fixo</small></div>
+        <b>R$ 5,99</b>
+    </div>
+
+    <button class="main-btn" onclick="showRoleta()" style="background:linear-gradient(45deg, #bc1888, #4facfe)">🎰 ROLETA DE DESCONTO</button>
+</div>
+
+<div class="box hidden" id="panel">
+    <h3 id="titulo" style="color:cyan; margin-bottom:10px;"></h3>
+    <div id="calcSeguidores" class="hidden">
+        <input type="number" id="atuais" placeholder="Seguidores Atuais?" oninput="calcTudo()">
+    </div>
+    <input type="number" id="compra" placeholder="Quantidade desejada?" oninput="calcTudo()">
+    <select id="regiao" onchange="calcTudo()">
+        <option value="br">🇧🇷 Brasileiros (Premium)</option>
+        <option value="global">🌎 Mundiais</option>
+    </select>
+    <div id="areaPerfis">
+        <input id="linkPrinc" placeholder="Link do Perfil ou Post">
+    </div>
+    <button id="btnMultiLink" class="main-btn" style="background:#ff3e3e; font-size:11px; padding:8px; margin-bottom:10px;" onclick="addPerfil()">Deseja pôr em mais de um link?</button>
+    <div class="valor-box"><h2 id="totalText">R$ 0,00</h2></div>
+    <button class="main-btn" onclick="adicionarAoCarrinho()">🛒 ADICIONAR AO CARRINHO</button>
+    <button onclick="voltar()" style="background:none; border:none; color:#555; margin-top:15px; cursor:pointer">Voltar</button>
+</div>
+
+<div id="modal">
+    <div class="modal-content" id="modalInt"></div>
+</div>
+
+<script>
+let carrinho = [];
+let pBaseOriginal = 5.99, qBase = 500, servico = "";
+let extraLinkAtivo = false;
+
+function abrir(t, p, q) {
+    servico = t; pBaseOriginal = p; qBase = q;
+    document.getElementById("titulo").innerText = t;
+    document.getElementById("compra").value = "";
+    document.getElementById("linkPrinc").value = "";
+    document.getElementById("totalText").innerText = "R$ 0,00";
+    removerLinkExtra();
+    document.getElementById("calcSeguidores").classList.toggle("hidden", t !== 'Seguidores');
+    document.getElementById("regiao").classList.toggle("hidden", t === 'Visualizações');
+    document.getElementById("menu").classList.add("hidden");
+    document.getElementById("panel").classList.remove("hidden");
+}
+
+function calcTudo() {
+    let cp = parseFloat(document.getElementById("compra").value) || 0;
+    let regiao = document.getElementById("regiao").value;
+    let precoEfetivo = pBaseOriginal;
+    if (servico === 'Seguidores') precoEfetivo = (regiao === 'br') ? 8.99 : 5.99;
+    else if (servico === 'Curtidas') precoEfetivo = (regiao === 'br') ? 4.99 : 2.99;
+    let total = (cp / qBase) * precoEfetivo;
+    document.getElementById("totalText").innerText = "R$ " + total.toFixed(2);
+}
+
+function addPerfil() {
+    if(extraLinkAtivo) return alert("Limite: 2 links.");
+    let container = document.createElement("div");
+    container.id = "containerExtra";
+    container.style.display = "flex"; container.style.alignItems = "center"; container.style.gap = "8px";
+    let input = document.createElement("input");
+    input.id = "linkExtra"; input.placeholder = "Segundo Link..."; input.style.flex = "1";
+    let undoBtn = document.createElement("button");
+    undoBtn.innerText = "🗑️"; undoBtn.style.background = "#ff3e3e"; undoBtn.style.border = "none"; undoBtn.style.color = "white"; undoBtn.style.padding = "10px"; undoBtn.style.borderRadius = "10px"; undoBtn.onclick = removerLinkExtra;
+    container.appendChild(input); container.appendChild(undoBtn);
+    document.getElementById("areaPerfis").appendChild(container);
+    extraLinkAtivo = true;
+}
+
+function removerLinkExtra() {
+    let extra = document.getElementById("containerExtra");
+    if(extra) { extra.remove(); extraLinkAtivo = false; }
+}
+
+function adicionarAoCarrinho() {
+    let q = document.getElementById("compra").value;
+    if(!q || q < 100) return alert("Insira uma quantidade válida.");
+    let link = document.getElementById("linkPrinc").value;
+    if(!link) return alert("Insira um link.");
+
+    let linksFinais = link;
+    if(extraLinkAtivo && document.getElementById("linkExtra").value) {
+        linksFinais += " | " + document.getElementById("linkExtra").value;
+    }
+
+    carrinho.push({servico, qtd: q, valor: document.getElementById("totalText").innerText, links: linksFinais});
+    document.getElementById("cartCount").innerText = carrinho.length;
+    alert("🚀 Adicionado ao Carrinho!");
+    voltar();
+}
+
+function abrirCarrinho() {
+    if(carrinho.length === 0) return alert("O seu carrinho está vazio.");
+    
+    let totalPedido = 0;
+    let msgWpp = "Olá Wender, quero fechar esse pedido:\n\n";
+    let itensHtml = "";
+
+    carrinho.forEach((item, i) => {
+        itensHtml += `
+            <div class="cart-item">
+                <span class="cart-remove" onclick="removerDoCarrinho(${i})">✖</span>
+                <b style="color:cyan">${item.servico}</b><br>
+                Qtd: ${item.qtd} • <span style="color:#0f0">${item.valor}</span><br>
+                <small style="color:#666; font-size:9px">${item.links}</small>
+            </div>`;
+        totalPedido += parseFloat(item.valor.replace("R$ ", ""));
+        msgWpp += `• ${item.servico}: ${item.qtd}\nLinks: ${item.links}\nPreço: ${item.valor}\n\n`;
+    });
+    
+    msgWpp += `TOTAL: R$ ${totalPedido.toFixed(2)}`;
+
+    let html = `
+        <div class="pix-badge">CHECKOUT SEGURO</div>
+        <h3 style="letter-spacing:1px">RESUMO DO PEDIDO</h3>
+        
+        <div class="checkout-list">
+            ${itensHtml}
+        </div>
+
+        <div style="border-top: 1px dashed #333; margin: 15px 0; padding-top: 10px;">
+            <span style="font-size:14px; color:#aaa">Total a pagar:</span>
+            <h2 style="color:#0f0; font-size:32px">R$ ${totalPedido.toFixed(2)}</h2>
+        </div>
+
+        <div style="background:#111; padding:15px; border-radius:15px; margin-bottom:15px;">
+            <small style="color:cyan">PAGAMENTO VIA PIX</small><br>
+            <b style="font-size:14px">07194284162</b><br>
+            <small style="color:#666">Wender Santos Castedo</small>
+        </div>
+
+        <a href="https://wa.me/5565993492211?text=${encodeURIComponent(msgWpp)}" target="_blank" class="btn-contato btn-wpp">
+            <img class="icon-svg" src="https://cdn-icons-png.flaticon.com/512/733/733585.png"> FINALIZAR NO WHATSAPP
+        </a>
+
+        <a href="https://instagram.com/wendizx_/" target="_blank" class="btn-contato btn-insta">
+            <img class="icon-svg" src="https://cdn-icons-png.flaticon.com/512/174/174855.png"> ENVIAR NO INSTAGRAM
+        </a>
+
+        <button onclick="closeModal()" style="margin-top:15px; background:none; border:none; color:#555; font-size:12px; cursor:pointer">← Adicionar mais itens</button>
+    `;
+
+    document.getElementById("modalInt").innerHTML = html;
+    document.getElementById("modal").style.display = "flex";
+}
+
+function removerDoCarrinho(i) {
+    carrinho.splice(i, 1);
+    document.getElementById("cartCount").innerText = carrinho.length;
+    if(carrinho.length === 0) closeModal(); else abrirCarrinho();
+}
+
+function closeModal() { document.getElementById("modal").style.display = "none"; }
+function voltar() { document.getElementById("menu").classList.remove("hidden"); document.getElementById("panel").classList.add("hidden"); }
+
+function showRoleta() {
+    document.getElementById("modalInt").innerHTML = `<h3>🎰 ROLETA VIP</h3><p style="margin:10px 0">SORTEANDO DESCONTO...</p>`;
+    document.getElementById("modal").style.display = "flex";
+    setTimeout(() => { 
+        document.getElementById("modalInt").innerHTML = `
+            <h2 style="color:cyan">PARABÉNS! 🎁</h2>
+            <p style='color:#0f0; margin:15px 0'>Você ganhou 10% OFF EXTRA<br>Use o Cupom: <b>WENDIZX10</b></p>
+            <button onclick="closeModal()" class="main-btn">APROVEITAR AGORA</button>
+        `; 
+    }, 1500);
+}
+
+setInterval(() => {
+    let n = document.getElementById("fakeNotify");
+    n.style.top = "20px"; setTimeout(() => n.style.top = "-100px", 4000);
+}, 25000);
+
+let time = 899;
+setInterval(() => {
+    let m = Math.floor(time / 60); let s = time % 60;
+    document.getElementById("clock").innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
+    if (time > 0) time--;
+}, 1000);
+
+const c=document.getElementById("p"),ctx=c.getContext("2d");
+function resize(){c.width=innerWidth;c.height=innerHeight}
+resize(); onresize=resize;
+let ps=Array.from({length:40},()=>({x:Math.random()*c.width,y:Math.random()*c.height,dx:(Math.random()-.3),dy:(Math.random()-.3),r:1}));
+(function anim(){
+  ctx.clearRect(0,0,c.width,c.height);
+  ps.forEach(a=>{
+    a.x+=a.dx; a.y+=a.dy;
+    if(a.x<0||a.x>c.width)a.dx*=-1; if(a.y<0||a.y>c.height)a.dy*=-1;
+    ctx.fillStyle="rgba(0,255,255,0.3)";
+    ctx.beginPath(); ctx.arc(a.x,a.y,a.r,0,Math.PI*2); ctx.fill();
+  });
+  requestAnimationFrame(anim);
+})();
+</script>
+</body>
+</html>
